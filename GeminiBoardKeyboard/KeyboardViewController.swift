@@ -12,6 +12,8 @@ final class KeyboardViewController: UIInputViewController {
     private var sourceLang = SharedConstants.defaultSourceLanguage
     private var targetLang = SharedConstants.defaultTargetLanguage
     
+    private var heightConstraint: NSLayoutConstraint?
+    
     // Buffer of text typed in THIS keyboard session
     // (textDocumentProxy.documentContextBeforeInput shows all text, not just what we typed)
     private var sessionText: String = "" {
@@ -152,6 +154,17 @@ final class KeyboardViewController: UIInputViewController {
         defaults?.set(sourceLang, forKey: SharedConstants.sourceLanguageKey)
         defaults?.set(targetLang, forKey: SharedConstants.targetLanguageKey)
         toolbar.configure(sourceLang: sourceLang, targetLang: targetLang)
+    }
+    
+    override func updateViewConstraints() {
+        super.updateViewConstraints()
+        
+        if heightConstraint == nil {
+            let constraint = view.heightAnchor.constraint(equalToConstant: 288)
+            constraint.priority = .required - 1
+            constraint.isActive = true
+            heightConstraint = constraint
+        }
     }
 }
 
