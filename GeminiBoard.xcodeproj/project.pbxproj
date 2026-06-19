@@ -362,10 +362,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_ENTITLEMENTS = GeminiBoard/GeminiBoard.entitlements;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = GeminiBoard/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -383,10 +381,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_ENTITLEMENTS = GeminiBoard/GeminiBoard.entitlements;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = GeminiBoard/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -403,10 +399,7 @@
 		CBA1B1F223EAAC31612B5729 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_ENTITLEMENTS = GeminiBoardKeyboard/GeminiBoardKeyboard.entitlements;
-				CODE_SIGN_IDENTITY = "";
 				INFOPLIST_FILE = GeminiBoardKeyboard/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -424,10 +417,7 @@
 		F200E226F7DFD781E170EB4A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_ENTITLEMENTS = GeminiBoardKeyboard/GeminiBoardKeyboard.entitlements;
-				CODE_SIGN_IDENTITY = "";
 				INFOPLIST_FILE = GeminiBoardKeyboard/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (

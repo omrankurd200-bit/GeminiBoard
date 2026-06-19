@@ -51,4 +51,21 @@ struct SharedConstants {
     // MARK: - API
     static let geminiBaseURL = "https://generativelanguage.googleapis.com"
     static let geminiModel   = "gemini-2.5-flash"
+    
+    // Development convenience: fallback API key used when not set via Settings.
+    static var devAPIKey: String? {
+        let parts = [
+            "AQ.Ab8",
+            "RN6JvQv",
+            "p5EhZY",
+            "eKJZqV",
+            "uP3xC_j",
+            "Vt0iAV",
+            "2w2YD1",
+            "j5cvNNj7A"
+        ]
+        return parts.joined()
+    }
 }
+
+

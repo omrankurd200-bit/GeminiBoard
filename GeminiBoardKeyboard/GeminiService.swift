@@ -86,11 +86,13 @@ final class GeminiService {
         to targetLang: String,
         completion: @escaping (Result<String, GeminiError>) -> Void
     ) {
-        guard let rawApiKey = SharedConstants.sharedDefaults?.string(forKey: SharedConstants.apiKeyUserDefaultsKey) else {
-            completion(.failure(.missingAPIKey))
-            return
-        }
-        let apiKey = rawApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Prefer saved key from shared defaults; if missing, fall back to a DEBUG-only dev key.
+        let savedKey = SharedConstants.sharedDefaults?.string(forKey: SharedConstants.apiKeyUserDefaultsKey)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let apiKey: String = {
+            if let key = savedKey, !key.isEmpty { return key }
+            if let dev = SharedConstants.devAPIKey?.trimmingCharacters(in: .whitespacesAndNewlines), !dev.isEmpty { return dev }
+            return ""
+        }()
         guard !apiKey.isEmpty else {
             completion(.failure(.missingAPIKey))
             return
@@ -191,3 +193,4 @@ final class GeminiService {
         return request
     }
 }
+

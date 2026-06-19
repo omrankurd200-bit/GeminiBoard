@@ -36,6 +36,18 @@ jobs:
     - name: Generate Xcode project
       run: xcodegen generate --spec project.yml
 
+    # ── 4.5 Inject API Key ──────────────────────────────────────
+    - name: Inject API Key
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: |
+        if [ -n "$GEMINI_API_KEY" ]; then
+          echo "Injecting API Key..."
+          sed -i.bak "s/PLACEHOLDER_DEV_API_KEY/$GEMINI_API_KEY/g" Shared/SharedConstants.swift
+        else
+          echo "No GEMINI_API_KEY secret found in GitHub Settings."
+        fi
+
     # ── 5. Build & Archive ──────────────────────────────────────
     - name: Build Archive
       run: |
