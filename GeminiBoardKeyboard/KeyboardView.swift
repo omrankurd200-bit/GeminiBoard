@@ -1,5 +1,5 @@
 // KeyboardView.swift
-// Full programmatic QWERTY keyboard view with native iOS design
+// Full programmatic QWERTY & Arabic keyboard view with native iOS design
 
 import UIKit
 
@@ -24,6 +24,9 @@ final class KeyboardView: UIView {
     private(set) var isShowingNumbers = false
     private var isShowingSymbols = false
     
+    enum KeyboardLanguage { case english, arabic }
+    private(set) var currentLanguage: KeyboardLanguage = .english
+    
     // Kept for compatibility with controller
     var inputText: String = ""
     
@@ -32,6 +35,11 @@ final class KeyboardView: UIView {
         ["q","w","e","r","t","y","u","i","o","p"],
         ["a","s","d","f","g","h","j","k","l"],
         ["z","x","c","v","b","n","m"]
+    ]
+    private let arabicRows: [[String]] = [
+        ["ض","ص","ث","ق","ف","غ","ع","ه","خ","ح","ج","د"],
+        ["ش","س","ي","ب","ل","ا","ت","ن","م","ك","ط"],
+        ["ئ","ء","ؤ","ر","لا","ى","ة","و","ز","ظ"]
     ]
     private let numberRows: [[String]] = [
         ["1","2","3","4","5","6","7","8","9","0"],
@@ -96,7 +104,7 @@ final class KeyboardView: UIView {
     private func buildQwertyLayout() {
         mainStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         keyButtons.removeAll()
-        let rows = isShowingNumbers ? (isShowingSymbols ? symbolRows : numberRows) : qwertyRows
+        let rows = isShowingNumbers ? (isShowingSymbols ? symbolRows : numberRows) : (currentLanguage == .arabic ? arabicRows : qwertyRows)
         
         for (i, row) in rows.enumerated() {
             let rowStack = UIStackView()
@@ -105,7 +113,7 @@ final class KeyboardView: UIView {
             rowStack.alignment    = .fill
             
             if i == 0 {
-                // Row 1: 10 keys. fills equally
+                // Row 1: QWERTY (10 keys) or Arabic (12 keys). Fills equally.
                 rowStack.distribution = .fillEqually
                 for char in row {
                     let btn = makeKeyButton(title: char)
@@ -114,12 +122,15 @@ final class KeyboardView: UIView {
                     keyButtons.append(btn)
                 }
             } else if i == 1 {
-                // Row 2: 9 keys (ASDFG) or 10 keys (numbers).
+                // Row 2: English (9 keys) or Arabic (11 keys).
                 rowStack.distribution = .fillEqually
                 if !isShowingNumbers {
-                    // Indent slightly to align with Row 1 keys perfectly
                     rowStack.isLayoutMarginsRelativeArrangement = true
-                    rowStack.layoutMargins = UIEdgeInsets(top: 0, left: 18, bottom: 0, right: 18)
+                    if currentLanguage == .english {
+                        rowStack.layoutMargins = UIEdgeInsets(top: 0, left: 18, bottom: 0, right: 18)
+                    } else {
+                        rowStack.layoutMargins = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+                    }
                 }
                 for char in row {
                     let btn = makeKeyButton(title: char)
@@ -131,15 +142,24 @@ final class KeyboardView: UIView {
                 // Row 3: Special keys at sides, nested stack in middle for letters
                 rowStack.distribution = .fill
                 
-                // 1. Left Special Button (Shift or symbols toggle)
+                let specialWidth: CGFloat = (currentLanguage == .arabic && !isShowingNumbers) ? 36 : 44
+                
+                // 1. Left Special Button
                 let leftSpecialBtn: UIButton
                 if !isShowingNumbers {
-                    let shiftBtn = makeSpecialButton(title: "⇧", width: 44)
-                    shiftBtn.addTarget(self, action: #selector(shiftTapped(_:)), for: .touchUpInside)
-                    self.shiftButton = shiftBtn
-                    leftSpecialBtn = shiftBtn
+                    if currentLanguage == .english {
+                        let shiftBtn = makeSpecialButton(title: "⇧", width: specialWidth)
+                        shiftBtn.addTarget(self, action: #selector(shiftTapped(_:)), for: .touchUpInside)
+                        self.shiftButton = shiftBtn
+                        leftSpecialBtn = shiftBtn
+                    } else {
+                        // Arabic layout left key: types Arabic comma "،"
+                        let commaBtn = makeSpecialButton(title: "،", width: specialWidth)
+                        commaBtn.addTarget(self, action: #selector(arabicCommaTapped), for: .touchUpInside)
+                        leftSpecialBtn = commaBtn
+                    }
                 } else {
-                    let symBtn = makeSpecialButton(title: isShowingSymbols ? "ABC" : "#+=", width: 44)
+                    let symBtn = makeSpecialButton(title: isShowingSymbols ? "ABC" : "#+=", width: specialWidth)
                     symBtn.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
                     symBtn.addTarget(self, action: #selector(symbolsTapped(_:)), for: .touchUpInside)
                     self.symbolsButton = symBtn
@@ -162,7 +182,7 @@ final class KeyboardView: UIView {
                 rowStack.addArrangedSubview(middleStack)
                 
                 // 3. Right Special Button (Delete)
-                let delBtn = makeSpecialButton(title: "⌫", width: 44)
+                let delBtn = makeSpecialButton(title: "⌫", width: specialWidth)
                 delBtn.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
                 let lp = UILongPressGestureRecognizer(target: self, action: #selector(deleteLongPress(_:)))
                 lp.minimumPressDuration = 0.4
@@ -186,18 +206,24 @@ final class KeyboardView: UIView {
         row.alignment    = .fill
         
         // Globe (next keyboard)
-        let globeBtn = makeSpecialButton(title: "🌐", width: 44)
+        let globeBtn = makeSpecialButton(title: "🌐", width: 40)
         globeBtn.addTarget(self, action: #selector(globeTapped), for: .touchUpInside)
         
         // Numbers toggle
-        let numBtn = makeSpecialButton(title: isShowingNumbers ? "ABC" : "123", width: 44)
+        let numBtn = makeSpecialButton(title: isShowingNumbers ? "ABC" : "123", width: 40)
         numBtn.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
         numBtn.addTarget(self, action: #selector(numbersTapped(_:)), for: .touchUpInside)
         self.numbersButton = numBtn
         
+        // Language switcher (EN/AR layout toggle)
+        let langBtn = makeSpecialButton(title: currentLanguage == .english ? "عربي" : "EN", width: 40)
+        langBtn.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
+        langBtn.setTitleColor(UIColor(red: 0.7, green: 0.6, blue: 1.0, alpha: 1), for: .normal)
+        langBtn.addTarget(self, action: #selector(toggleLanguage), for: .touchUpInside)
+        
         // Space bar (fills remaining space)
         let spaceBtn = UIButton(type: .system)
-        spaceBtn.setTitle("space", for: .normal)
+        spaceBtn.setTitle(currentLanguage == .english ? "space" : "مسافة", for: .normal)
         spaceBtn.titleLabel?.font  = .systemFont(ofSize: 15, weight: .regular)
         spaceBtn.setTitleColor(keyText, for: .normal)
         spaceBtn.backgroundColor   = keyBG
@@ -210,7 +236,7 @@ final class KeyboardView: UIView {
         spaceBtn.addTarget(self, action: #selector(spaceTapped), for: .touchUpInside)
         
         // Return key (blue action button style)
-        let returnBtn = makeSpecialButton(title: "return", width: 84)
+        let returnBtn = makeSpecialButton(title: currentLanguage == .english ? "return" : "إدخال", width: 76)
         returnBtn.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
         returnBtn.backgroundColor  = accentColor
         returnBtn.setTitleColor(.white, for: .normal)
@@ -218,6 +244,7 @@ final class KeyboardView: UIView {
         
         row.addArrangedSubview(globeBtn)
         row.addArrangedSubview(numBtn)
+        row.addArrangedSubview(langBtn)
         row.addArrangedSubview(spaceBtn)
         row.addArrangedSubview(returnBtn)
         return row
@@ -276,6 +303,18 @@ final class KeyboardView: UIView {
         }
         UIDevice.current.playInputClick()
         delegate?.keyboardView(self, didTapKey: title)
+    }
+    
+    @objc private func arabicCommaTapped() {
+        UIDevice.current.playInputClick()
+        delegate?.keyboardView(self, didTapKey: "،")
+    }
+    
+    @objc private func toggleLanguage() {
+        currentLanguage = (currentLanguage == .english) ? .arabic : .english
+        isShowingNumbers = false
+        isShowingSymbols = false
+        buildQwertyLayout()
     }
     
     @objc private func deleteTapped() {
@@ -373,5 +412,14 @@ final class KeyboardView: UIView {
             sender.transform = .identity
             sender.alpha = 1.0
         })
+    }
+    
+    // MARK: - Public Helper
+    
+    func setKeyboardLanguage(_ lang: KeyboardLanguage) {
+        currentLanguage = lang
+        isShowingNumbers = false
+        isShowingSymbols = false
+        buildQwertyLayout()
     }
 }

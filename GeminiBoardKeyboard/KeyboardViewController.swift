@@ -73,6 +73,13 @@ final class KeyboardViewController: UIInputViewController {
         sourceLang = defaults?.string(forKey: SharedConstants.sourceLanguageKey) ?? SharedConstants.defaultSourceLanguage
         targetLang = defaults?.string(forKey: SharedConstants.targetLanguageKey) ?? SharedConstants.defaultTargetLanguage
         toolbar.configure(sourceLang: sourceLang, targetLang: targetLang)
+        
+        // Auto-select keyboard layout based on source language setting
+        if sourceLang == "Arabic" {
+            keyboard.setKeyboardLanguage(.arabic)
+        } else {
+            keyboard.setKeyboardLanguage(.english)
+        }
     }
     
     // MARK: - Full Access Check

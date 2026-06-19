@@ -399,20 +399,23 @@ final class SettingsViewController: UIViewController {
         let savedSource = defaults?.string(forKey: SharedConstants.sourceLanguageKey) ?? SharedConstants.defaultSourceLanguage
         let savedTarget = defaults?.string(forKey: SharedConstants.targetLanguageKey) ?? SharedConstants.defaultTargetLanguage
         
-        selectedSourceIndex = SharedConstants.languages.firstIndex(of: savedSource) ?? 0
-        selectedTargetIndex = SharedConstants.languages.firstIndex(of: savedTarget) ?? 5
+        sourceLangField.text = savedSource
+        targetLangField.text = savedTarget
         
-        sourceLangPicker.selectRow(selectedSourceIndex, inComponent: 0, animated: false)
-        targetLangPicker.selectRow(selectedTargetIndex, inComponent: 0, animated: false)
+        if let sourceIndex = SharedConstants.languages.firstIndex(of: savedSource) {
+            sourceLangPicker.selectRow(sourceIndex, inComponent: 0, animated: false)
+        }
         
-        sourceLangField.text = SharedConstants.languages[selectedSourceIndex]
-        targetLangField.text = SharedConstants.languages[selectedTargetIndex]
+        let filtered = SharedConstants.languages.filter { $0 != "Auto-Detect" }
+        if let targetIndex = filtered.firstIndex(of: savedTarget) {
+            targetLangPicker.selectRow(targetIndex, inComponent: 0, animated: false)
+        }
     }
     
     @objc private func saveSettings() {
         view.endEditing(true)
         
-        let key = apiKeyField.text?.trimmingCharacters(in: .whitespaces) ?? ""
+        let key = apiKeyField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !key.isEmpty else {
             showAlert(title: "Missing API Key", message: "Please enter your Gemini API key.")
             return
@@ -420,8 +423,8 @@ final class SettingsViewController: UIViewController {
         
         let defaults = SharedConstants.sharedDefaults
         defaults?.set(key, forKey: SharedConstants.apiKeyUserDefaultsKey)
-        defaults?.set(SharedConstants.languages[selectedSourceIndex], forKey: SharedConstants.sourceLanguageKey)
-        defaults?.set(SharedConstants.languages[selectedTargetIndex], forKey: SharedConstants.targetLanguageKey)
+        defaults?.set(sourceLangField.text ?? SharedConstants.defaultSourceLanguage, forKey: SharedConstants.sourceLanguageKey)
+        defaults?.set(targetLangField.text ?? SharedConstants.defaultTargetLanguage, forKey: SharedConstants.targetLanguageKey)
         defaults?.synchronize()
         
         // Success feedback
@@ -453,6 +456,17 @@ final class SettingsViewController: UIViewController {
     }
     
     @objc private func dismissPicker() {
+        let sourceRow = sourceLangPicker.selectedRow(inComponent: 0)
+        if sourceRow >= 0 && sourceRow < SharedConstants.languages.count {
+            sourceLangField.text = SharedConstants.languages[sourceRow]
+        }
+        
+        let targetRow = targetLangPicker.selectedRow(inComponent: 0)
+        let filtered = SharedConstants.languages.filter { $0 != "Auto-Detect" }
+        if targetRow >= 0 && targetRow < filtered.count {
+            targetLangField.text = filtered[targetRow]
+        }
+        
         view.endEditing(true)
     }
 }

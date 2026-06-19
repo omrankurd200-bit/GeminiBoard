@@ -64,6 +64,14 @@ jobs:
         echo "Found app at: $APP_PATH"
         mkdir -p "$RUNNER_TEMP/Payload"
         cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
+        
+        # Pseudo-sign both targets with entitlements (required for TrollStore to enable App Groups)
+        echo "Signing Keyboard Extension..."
+        codesign -s - --entitlements GeminiBoardKeyboard/GeminiBoardKeyboard.entitlements -f "$RUNNER_TEMP/Payload/GeminiBoard.app/PlugIns/GeminiBoardKeyboard.appex"
+        
+        echo "Signing Container App..."
+        codesign -s - --entitlements GeminiBoard/GeminiBoard.entitlements -f "$RUNNER_TEMP/Payload/GeminiBoard.app"
+        
         cd "$RUNNER_TEMP"
         zip -qr GeminiBoard.ipa Payload/
         ls -lh GeminiBoard.ipa
