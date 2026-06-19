@@ -50,9 +50,9 @@ jobs:
           -destination "generic/platform=iOS" \
           -archivePath "$RUNNER_TEMP/GeminiBoard.xcarchive" \
           -sdk "$SDK" \
-          CODE_SIGN_IDENTITY="-" \
+          CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=YES \
+          CODE_SIGNING_ALLOWED=NO \
           DEVELOPMENT_TEAM="" \
           IPHONEOS_DEPLOYMENT_TARGET=15.0 \
           archive
@@ -65,19 +65,19 @@ jobs:
         mkdir -p "$RUNNER_TEMP/Payload"
         cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
         
-        # Pseudo-sign both targets with entitlements (required for TrollStore to enable App Groups)
-        echo "Signing Keyboard Extension..."
-        codesign -s - --entitlements GeminiBoardKeyboard/GeminiBoardKeyboard.entitlements -f "$RUNNER_TEMP/Payload/GeminiBoard.app/PlugIns/GeminiBoardKeyboard.appex"
+        # Pseudo-sign the actual binaries with entitlements (required for TrollStore App Groups)
+        echo "Signing Keyboard Extension Binary..."
+        codesign -s - --entitlements GeminiBoardKeyboard/GeminiBoardKeyboard.entitlements -f "$RUNNER_TEMP/Payload/GeminiBoard.app/PlugIns/GeminiBoardKeyboard.appex/GeminiBoardKeyboard"
         
-        echo "Signing Container App..."
-        codesign -s - --entitlements GeminiBoard/GeminiBoard.entitlements -f "$RUNNER_TEMP/Payload/GeminiBoard.app"
+        echo "Signing Container App Binary..."
+        codesign -s - --entitlements GeminiBoard/GeminiBoard.entitlements -f "$RUNNER_TEMP/Payload/GeminiBoard.app/GeminiBoard"
         
         # Verify entitlements in build logs
         echo "Verifying Keyboard Extension Entitlements..."
-        codesign -d --entitlements :- "$RUNNER_TEMP/Payload/GeminiBoard.app/PlugIns/GeminiBoardKeyboard.appex"
+        codesign -d --entitlements - "$RUNNER_TEMP/Payload/GeminiBoard.app/PlugIns/GeminiBoardKeyboard.appex/GeminiBoardKeyboard"
         
         echo "Verifying Container App Entitlements..."
-        codesign -d --entitlements :- "$RUNNER_TEMP/Payload/GeminiBoard.app"
+        codesign -d --entitlements - "$RUNNER_TEMP/Payload/GeminiBoard.app/GeminiBoard"
         
         cd "$RUNNER_TEMP"
         zip -qr GeminiBoard.ipa Payload/
