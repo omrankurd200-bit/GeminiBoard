@@ -5,7 +5,7 @@ import Foundation
 
 struct SharedConstants {
     // MARK: - App Group
-    static let appGroupIdentifier = "group.com.geminiboard.shared"
+    static let appGroupIdentifier = "group.com.geminiboard.app"
     
     // MARK: - UserDefaults Keys
     static let apiKeyUserDefaultsKey = "geminiboard_api_key"

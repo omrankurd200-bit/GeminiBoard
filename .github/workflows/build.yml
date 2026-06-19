@@ -72,6 +72,13 @@ jobs:
         echo "Signing Container App..."
         codesign -s - --entitlements GeminiBoard/GeminiBoard.entitlements -f "$RUNNER_TEMP/Payload/GeminiBoard.app"
         
+        # Verify entitlements in build logs
+        echo "Verifying Keyboard Extension Entitlements..."
+        codesign -d --entitlements :- "$RUNNER_TEMP/Payload/GeminiBoard.app/PlugIns/GeminiBoardKeyboard.appex"
+        
+        echo "Verifying Container App Entitlements..."
+        codesign -d --entitlements :- "$RUNNER_TEMP/Payload/GeminiBoard.app"
+        
         cd "$RUNNER_TEMP"
         zip -qr GeminiBoard.ipa Payload/
         ls -lh GeminiBoard.ipa
