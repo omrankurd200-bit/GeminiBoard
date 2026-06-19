@@ -1,0 +1,93 @@
+name: GeminiBoard
+options:
+  bundleIdPrefix: com.geminiboard
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "15.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+    IPHONEOS_DEPLOYMENT_TARGET: 15.0
+    TARGETED_DEVICE_FAMILY: 1
+    CODE_SIGN_IDENTITY: ""
+    CODE_SIGNING_REQUIRED: NO
+    CODE_SIGNING_ALLOWED: NO
+    ENABLE_BITCODE: NO
+    DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+
+targets:
+
+  # ─────────────────────────────────────────────
+  # Container App
+  # ─────────────────────────────────────────────
+  GeminiBoard:
+    type: application
+    platform: iOS
+    bundleId: com.geminiboard.app
+    deploymentTarget: "15.0"
+
+    settings:
+      base:
+        PRODUCT_NAME: GeminiBoard
+        INFOPLIST_FILE: GeminiBoard/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.geminiboard.app
+        CODE_SIGN_IDENTITY: ""
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO
+
+    sources:
+      - path: GeminiBoard
+        excludes:
+          - "*.plist"
+      - path: Shared
+
+    resources:
+      - path: GeminiBoard/Assets.xcassets
+
+    entitlements:
+      path: GeminiBoard/GeminiBoard.entitlements
+
+    dependencies:
+      - target: GeminiBoardKeyboard
+
+  # ─────────────────────────────────────────────
+  # Keyboard Extension
+  # ─────────────────────────────────────────────
+  GeminiBoardKeyboard:
+    type: app-extension
+    platform: iOS
+    bundleId: com.geminiboard.app.keyboard
+    deploymentTarget: "15.0"
+
+    settings:
+      base:
+        PRODUCT_NAME: GeminiBoardKeyboard
+        INFOPLIST_FILE: GeminiBoardKeyboard/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.geminiboard.app.keyboard
+        CODE_SIGN_IDENTITY: ""
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO
+
+    sources:
+      - path: GeminiBoardKeyboard
+        excludes:
+          - "*.plist"
+      - path: Shared
+
+    entitlements:
+      path: GeminiBoardKeyboard/GeminiBoardKeyboard.entitlements
+
+schemes:
+  GeminiBoard:
+    build:
+      targets:
+        GeminiBoard: all
+        GeminiBoardKeyboard: all
+    run:
+      config: Debug
+    archive:
+      config: Release
