@@ -50,9 +50,9 @@ jobs:
           -destination "generic/platform=iOS" \
           -archivePath "$RUNNER_TEMP/GeminiBoard.xcarchive" \
           -sdk "$SDK" \
-          CODE_SIGN_IDENTITY="" \
+          CODE_SIGN_IDENTITY="-" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_ALLOWED=YES \
           DEVELOPMENT_TEAM="" \
           IPHONEOS_DEPLOYMENT_TARGET=15.0 \
           archive

@@ -13,9 +13,9 @@ settings:
     SWIFT_VERSION: 5.9
     IPHONEOS_DEPLOYMENT_TARGET: 15.0
     TARGETED_DEVICE_FAMILY: 1
-    CODE_SIGN_IDENTITY: ""
+    CODE_SIGN_IDENTITY: "-"
     CODE_SIGNING_REQUIRED: NO
-    CODE_SIGNING_ALLOWED: NO
+    CODE_SIGNING_ALLOWED: YES
     ENABLE_BITCODE: NO
     DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
 
@@ -35,9 +35,6 @@ targets:
         PRODUCT_NAME: GeminiBoard
         INFOPLIST_FILE: GeminiBoard/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.geminiboard.app
-        CODE_SIGN_IDENTITY: ""
-        CODE_SIGNING_REQUIRED: NO
-        CODE_SIGNING_ALLOWED: NO
 
     sources:
       - path: GeminiBoard
@@ -68,9 +65,6 @@ targets:
         PRODUCT_NAME: GeminiBoardKeyboard
         INFOPLIST_FILE: GeminiBoardKeyboard/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.geminiboard.app.keyboard
-        CODE_SIGN_IDENTITY: ""
-        CODE_SIGNING_REQUIRED: NO
-        CODE_SIGNING_ALLOWED: NO
 
     sources:
       - path: GeminiBoardKeyboard
