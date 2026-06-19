@@ -3,29 +3,34 @@ name: Build GeminiBoard IPA
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:   # allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   build:
     name: Build & Package IPA
-    runs-on: macos-15   # Apple Silicon runner with Xcode 16
+    runs-on: macos-15
 
     steps:
 
-    # ── 1. Checkout code ────────────────────────────────────────
+    # ── 1. Checkout ─────────────────────────────────────────────
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # ── 2. Select Xcode version ─────────────────────────────────
-    - name: Select Xcode 16
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-
-    - name: Show Xcode version
-      run: xcodebuild -version
+    # ── 2. Select Xcode ─────────────────────────────────────────
+    - name: Select Xcode
+      run: |
+        # Find available Xcode versions and pick the latest
+        ls /Applications/ | grep Xcode
+        XCODE=$(ls /Applications/ | grep "^Xcode" | sort -r | head -1)
+        echo "Using: $XCODE"
+        sudo xcode-select -s "/Applications/$XCODE/Contents/Developer"
+        xcodebuild -version
+        xcodebuild -showsdks | grep iphoneos
 
     # ── 3. Install XcodeGen ─────────────────────────────────────
     - name: Install XcodeGen
-      run: brew install xcodegen
+      run: |
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen
 
     # ── 4. Generate Xcode project ───────────────────────────────
     - name: Generate Xcode project
@@ -34,16 +39,22 @@ jobs:
     # ── 5. Build & Archive ──────────────────────────────────────
     - name: Build Archive
       run: |
+        # Get the installed iOS SDK version
+        SDK=$(xcodebuild -showsdks | grep iphoneos | awk '{print $NF}' | head -1)
+        echo "Using SDK: $SDK"
+
         xcodebuild \
           -project GeminiBoard.xcodeproj \
           -scheme GeminiBoard \
           -configuration Release \
           -destination "generic/platform=iOS" \
           -archivePath "$RUNNER_TEMP/GeminiBoard.xcarchive" \
+          -sdk "$SDK" \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
           DEVELOPMENT_TEAM="" \
+          IPHONEOS_DEPLOYMENT_TARGET=15.0 \
           archive
 
     # ── 6. Package IPA ──────────────────────────────────────────
@@ -51,16 +62,13 @@ jobs:
       run: |
         APP_PATH=$(find "$RUNNER_TEMP/GeminiBoard.xcarchive/Products" -name "*.app" | head -1)
         echo "Found app at: $APP_PATH"
-        
         mkdir -p "$RUNNER_TEMP/Payload"
         cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
-        
         cd "$RUNNER_TEMP"
         zip -qr GeminiBoard.ipa Payload/
-        echo "IPA created at: $RUNNER_TEMP/GeminiBoard.ipa"
         ls -lh GeminiBoard.ipa
 
-    # ── 7. Upload IPA as artifact ────────────────────────────────
+    # ── 7. Upload IPA artifact ───────────────────────────────────
     - name: Upload IPA
       uses: actions/upload-artifact@v4
       with:
@@ -68,20 +76,11 @@ jobs:
         path: ${{ runner.temp }}/GeminiBoard.ipa
         retention-days: 30
 
-    # ── 8. Show download instructions ───────────────────────────
+    # ── 8. Summary ───────────────────────────────────────────────
     - name: Build Summary
       run: |
-        echo "## ✅ GeminiBoard IPA Built Successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "## ✅ GeminiBoard IPA Built!" >> $GITHUB_STEP_SUMMARY
+        echo "Download the **GeminiBoard-IPA** artifact below, extract it, and install via **TrollStore**." >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📲 How to Install:" >> $GITHUB_STEP_SUMMARY
-        echo "1. Go to the **Actions** tab in your GitHub repo" >> $GITHUB_STEP_SUMMARY
-        echo "2. Click this workflow run" >> $GITHUB_STEP_SUMMARY
-        echo "3. Scroll down to **Artifacts**" >> $GITHUB_STEP_SUMMARY
-        echo "4. Download **GeminiBoard-IPA**" >> $GITHUB_STEP_SUMMARY
-        echo "5. Extract the zip → get \`GeminiBoard.ipa\`" >> $GITHUB_STEP_SUMMARY
-        echo "6. Transfer to iPhone → install via **TrollStore**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### ⚠️ After Installing:" >> $GITHUB_STEP_SUMMARY
-        echo "- Open **GeminiBoard** app → enter your Gemini API key" >> $GITHUB_STEP_SUMMARY
-        echo "- Settings → General → Keyboard → Add GeminiBoard" >> $GITHUB_STEP_SUMMARY
-        echo "- Enable **Allow Full Access** ✓" >> $GITHUB_STEP_SUMMARY
+        echo "1. Open **GeminiBoard** app → enter your Gemini API key" >> $GITHUB_STEP_SUMMARY
+        echo "2. Settings → General → Keyboard → Add GeminiBoard → Allow Full Access ✓" >> $GITHUB_STEP_SUMMARY
