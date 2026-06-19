@@ -55,17 +55,17 @@ struct SharedConstants {
     // Development convenience: fallback API key used when not set via Settings.
     static var devAPIKey: String? {
         let parts = [
-            "AQ.Ab8",
-            "RN6JvQv",
-            "p5EhZY",
-            "eKJZqV",
-            "uP3xC_j",
-            "Vt0iAV",
-            "2w2YD1",
-            "j5cvNNj7A"
+            "AIzaSy",
+            "DTeo0t",
+            "Q-qoIM",
+            "60ZStk",
+            "uTfo1C",
+            "xAxhu8",
+            "6xo"
         ]
         return parts.joined()
     }
 }
+
 
 
