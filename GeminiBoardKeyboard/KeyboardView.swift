@@ -10,8 +10,6 @@ protocol KeyboardViewDelegate: AnyObject {
     func keyboardViewDidTapReturn(_ view: KeyboardView)
     func keyboardViewDidTapSpace(_ view: KeyboardView)
     func keyboardViewDidTapNextKeyboard(_ view: KeyboardView)
-    func keyboardViewDidTapShift(_ view: KeyboardView)
-    func keyboardViewDidTapNumbers(_ view: KeyboardView)
 }
 
 // MARK: - KeyboardView

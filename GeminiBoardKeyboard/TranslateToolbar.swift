@@ -208,7 +208,9 @@ final class TranslateToolbar: UIView {
         translateButton.setTitleColor(UIColor(white: 1, alpha: 0.5), for: .disabled)
         translateButton.layer.cornerRadius = 10
         translateButton.clipsToBounds      = true
-        translateButton.contentEdgeInsets  = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+        // Use layer padding instead of deprecated contentEdgeInsets
+        translateButton.titleEdgeInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+        translateButton.imageEdgeInsets = .zero
         
         // Gradient background
         let gl = CAGradientLayer()
@@ -261,7 +263,9 @@ final class TranslateToolbar: UIView {
         insertButton.layer.cornerRadius = 8
         insertButton.layer.borderWidth  = 1
         insertButton.layer.borderColor  = UIColor(red: 0.4, green: 1.0, blue: 0.6, alpha: 0.5).cgColor
-        insertButton.contentEdgeInsets  = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10)
+        // Use layer padding instead of deprecated contentEdgeInsets
+        insertButton.titleEdgeInsets = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10)
+        insertButton.imageEdgeInsets = .zero
         insertButton.isEnabled    = false
         insertButton.alpha        = 0.4
         insertButton.addTarget(self, action: #selector(insertTapped), for: .touchUpInside)

@@ -184,7 +184,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
         textDocumentProxy.insertText(key)
         sessionText.append(contentsOf: key)
         // Reset translation state since text changed
-        if case .done = toolbar.translationResult != nil ? TranslateToolbar.State.idle : TranslateToolbar.State.idle {
+        if toolbar.translationResult != nil {
             toolbar.setState(.idle)
         }
     }
@@ -208,9 +208,5 @@ extension KeyboardViewController: KeyboardViewDelegate {
     
     func keyboardViewDidTapNextKeyboard(_ view: KeyboardView) {
         advanceToNextInputMode()
-    }
-    
-    func keyboardViewDidTapShift(_ view: KeyboardView) {
-        // Handled inside KeyboardView
     }
 }
